@@ -8,6 +8,7 @@ import ProbabilisticConsensus.ConsensusInterface;
 import ProbabilisticConsensus.ConsensusMessage;
 import ProbabilisticConsensus.MessageHandler;
 
+
 public class JGroupsNode extends ReceiverAdapter implements ConsensusInterface {
 
 	private JChannel channel;
@@ -29,7 +30,6 @@ public class JGroupsNode extends ReceiverAdapter implements ConsensusInterface {
 	}
 
 	public void broadcastMessage(ConsensusMessage message) throws Exception {
-		System.out.println("Broadcasting message: " + message);
 		Message msg = new Message(null, message);
 		channel.send(msg);
 	}
