@@ -1,6 +1,6 @@
 package ProbabilisticConsensus;
 
-public class MessageParser {
+public class MessageParser<T> {
 
         // Method to parse a message string into a PbftMessage object
         public static ConsensusMessage parseMessageString(String messageString) {

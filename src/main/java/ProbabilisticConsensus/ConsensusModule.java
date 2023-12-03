@@ -17,6 +17,8 @@ class ConsensusNode {
 
     private final ConsensusInterface nodeInterface;
 
+    boolean isMasterNode;
+
     ConsensusNode(int nodeId, ConsensusInterface nodeInterface) {
         this.nodeId = nodeId;
         this.nodeInterface = nodeInterface;
@@ -26,15 +28,21 @@ class ConsensusNode {
         this.prePrepareBuffer = new HashMap<>();
         this.prepareBuffer = new HashMap<>();
         this.commitBuffer = new HashMap<>();
+        this.isMasterNode = false;
+
     }
 
-    private void listenToMessages() {
+    private void receive() {
         while (true) {
             this.log = this.nodeInterface.receiveAllMessages();
         }
     }
 
-    public int getConsensus() { return 0;} // Chama todos os procedimentos e retorna valor
+    public int getConsensus() { // Chama todos os procedimentos e retorna valor
+        this.isMasterNode = true;
+        this.startConsensusCall();
+        int byzantineTolerance =  this.nodeInterface.numberOfNodes();
+        return 0;}
 
     private void startConsensusCall() {
 
@@ -68,9 +76,13 @@ class ConsensusNode {
 
 
 public class ConsensusModule<T> {
-    List<ConsensusNode> nodes;
-    List<ConsensusInterface> interfaces;
-    T[] replicaStates;
+    ConsensusNode node;
+    ConsensusInterface interface;
+
+    public void receive(String msgString) {
+       ConsensusMessage<T> msgObject = MessageParser.parseMessageString(msgString);
+       node.receiveMessage(msgObject);
+    }
 //
 //    ConsensusModule(int numNodes) {
 //        nodes = new ArrayList<>();
