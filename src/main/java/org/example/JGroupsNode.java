@@ -25,7 +25,11 @@ public class JGroupsNode extends ReceiverAdapter implements ConsensusInterface {
 	public void receive(Message msg) {
 		ConsensusMessage consensusMessage = msg.getObject();
 		if (messageHandler != null) {
-			messageHandler.handleReceive(consensusMessage);
+			try {
+				messageHandler.handleReceive(consensusMessage);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 

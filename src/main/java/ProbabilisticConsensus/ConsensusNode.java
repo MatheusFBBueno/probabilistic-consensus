@@ -15,8 +15,8 @@ public class ConsensusNode implements MessageHandler {
 	int lastExecutedSequenceNumber;
 	List<ConsensusMessage> log;
 	Map<Integer, ConsensusMessage> prePrepareBuffer;
-	Map<Integer, List<ConsensusMessage>> prepareBuffer;
-	Map<Integer, List<ConsensusMessage>> commitBuffer;
+	Map<Integer, ConsensusMessage> prepareBuffer;
+	Map<Integer, ConsensusMessage> commitBuffer;
 
 	private final ConsensusInterface nodeInterface;
 
@@ -49,11 +49,15 @@ public class ConsensusNode implements MessageHandler {
 		this.nodeInterface.broadcastMessage(msg_request);
 	}
 
-	public void handleReceive(ConsensusMessage consensusMessage) {
+	public void handleReceive(ConsensusMessage consensusMessage) throws Exception {
 		System.out.println("Node " + this.nodeId + ": Received message from " + consensusMessage.getSenderId());
 		switch (consensusMessage.getType()) {
 		case PRE_PREPARE:
-			this.receivePrePrepare();
+			if (consensusMessage.sequenceNumber > this.lastExecutedSequenceNumber){
+				this.respondPrepare();
+			} else {
+				System.out.println("Recusado pedido de prePrepare");
+			}
 			break;
 		case PREPARE:
 			break;
@@ -83,4 +87,13 @@ public class ConsensusNode implements MessageHandler {
 				this.nodeId);
 		this.nodeInterface.broadcastMessage(msg_request);
 	}
+
+	private void updateCommitBuffer(ConsensusMessage msg) {
+		this.commitBuffer.put(msg.senderId, msg);
+	}
+
+	private void updatePrepareBuffer(ConsensusMessage msg) {
+		this.prepareBuffer.put(msg.senderId, msg);
+	}
+
 }

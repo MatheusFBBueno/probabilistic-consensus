@@ -1,5 +1,5 @@
 package ProbabilisticConsensus;
 
 public interface MessageHandler {
-	void handleReceive(ConsensusMessage message);
+	void handleReceive(ConsensusMessage message) throws Exception;
 }
