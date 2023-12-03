@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ConsensusNode {
+public class ConsensusNode implements MessageHandler {
 	int nodeId;
 	int nodeView;
 	int lastExecutedSequenceNumber;
@@ -25,6 +25,7 @@ public class ConsensusNode {
 	public ConsensusNode(int nodeId, ConsensusInterface nodeInterface) {
 		this.nodeId = nodeId;
 		this.nodeInterface = nodeInterface;
+		this.nodeInterface.messageHandler(this);
 		this.nodeView = 0;   // Pode ter nome melhor, mas corresponde a o valor que o nodo enxerga como correto
 		this.lastExecutedSequenceNumber = 0;
 		this.log = new ArrayList<>();
@@ -48,19 +49,17 @@ public class ConsensusNode {
 		this.nodeInterface.broadcastMessage(msg_request);
 	}
 
-	public void receiveMessage(ConsensusMessage consensusMessage) {
+	public void handleReceive(ConsensusMessage consensusMessage) {
 		switch (consensusMessage.getType()) {
-			case PRE_PREPARE:
-				this.receivePrePrepare();
-				break;
-//			case PREPARE:
-//				this.receivePrepare();
-//				break;
-//			case COMMIT:
-//				this.receiveCommit();
-//				break;
-			default:
-				break;
+		case PRE_PREPARE:
+			this.receivePrePrepare();
+			break;
+		case PREPARE:
+			break;
+		case COMMIT:
+			break;
+		default:
+			break;
 		}
 	}
 
