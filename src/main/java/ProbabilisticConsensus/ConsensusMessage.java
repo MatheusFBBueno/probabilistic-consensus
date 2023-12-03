@@ -1,21 +1,16 @@
 package ProbabilisticConsensus;
 
-enum MessageType {
-    PREPREPARE,
-    PREPARE,
-    COMMIT,
-    REPLY
-}
+import java.io.Serializable;
 
-class ConsensusMessage<T> {
-    T view;
+public class ConsensusMessage implements Serializable {
+    int view;
     int sequenceNumber;
     MessageType type;
     int senderId;
 
 
     // Add other necessary fields based on the message type
-    ConsensusMessage(T view, int sequenceNumber, MessageType type, int senderId) {
+    ConsensusMessage(int view, int sequenceNumber, MessageType type, int senderId) {
         this.view = view;
         this.sequenceNumber = sequenceNumber;
         this.type = type;
