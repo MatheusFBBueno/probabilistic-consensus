@@ -1,5 +1,9 @@
 package ProbabilisticConsensus;
 
+import static ProbabilisticConsensus.MessageType.COMMIT;
+import static ProbabilisticConsensus.MessageType.PREPARE;
+import static ProbabilisticConsensus.MessageType.PRE_PREPARE;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,19 +43,35 @@ public class ConsensusNode {
 	private void startConsensusCall() throws Exception {
 		ConsensusMessage msg_request = new ConsensusMessage(this.nodeView,
 				this.lastExecutedSequenceNumber++,
-				MessageType.PREPREPARE,
+				PRE_PREPARE,
 				this.nodeId);
 		this.nodeInterface.broadcastMessage(msg_request);
 	}
 
-	private void receivePrePrepare() {
+	public void receiveMessage(ConsensusMessage consensusMessage) {
+		switch (consensusMessage.getType()) {
+			case PRE_PREPARE:
+				this.receivePrePrepare();
+				break;
+//			case PREPARE:
+//				this.receivePrepare();
+//				break;
+//			case COMMIT:
+//				this.receiveCommit();
+//				break;
+			default:
+				break;
+		}
+	}
 
+	private void receivePrePrepare() {
+		System.out.println("Received PRE_PREPARE");
 	}
 
 	private void respondPrepare() throws Exception {
 		ConsensusMessage msg_request = new ConsensusMessage(this.nodeView,
 				this.lastExecutedSequenceNumber++,
-				MessageType.PREPARE,
+				PREPARE,
 				this.nodeId);
 		this.nodeInterface.broadcastMessage(msg_request);
 	}
@@ -59,7 +79,7 @@ public class ConsensusNode {
 	private void respondCommit() throws Exception {
 		ConsensusMessage msg_request = new ConsensusMessage(this.nodeView,
 				this.lastExecutedSequenceNumber++,
-				MessageType.COMMIT,
+				COMMIT,
 				this.nodeId);
 		this.nodeInterface.broadcastMessage(msg_request);
 	}

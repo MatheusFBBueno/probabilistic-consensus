@@ -2,9 +2,13 @@ package ProbabilisticConsensus;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+
+@Getter
 public class ConsensusMessage implements Serializable {
     int view;
     int sequenceNumber;
+
     MessageType type;
     int senderId;
 

@@ -1,7 +1,7 @@
 package ProbabilisticConsensus;
 
-enum MessageType {
-	PREPREPARE,
+public enum MessageType {
+	PRE_PREPARE,
 	PREPARE,
 	COMMIT,
 	REPLY

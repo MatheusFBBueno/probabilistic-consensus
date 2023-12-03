@@ -6,10 +6,13 @@ import org.jgroups.ReceiverAdapter;
 
 import ProbabilisticConsensus.ConsensusInterface;
 import ProbabilisticConsensus.ConsensusMessage;
+import ProbabilisticConsensus.ConsensusNode;
 
 public class JGroupsNode extends ReceiverAdapter implements ConsensusInterface {
 
 	public JChannel channel;
+
+	public ConsensusNode consensusNode;
 
 	public void start() throws Exception {
 		channel = new JChannel();
@@ -19,16 +22,12 @@ public class JGroupsNode extends ReceiverAdapter implements ConsensusInterface {
 	}
 
 	public void receive(Message msg) {
-		receiveMessage(msg.getObject());
+		consensusNode.receiveMessage(msg.getObject());
 	}
 
 	public void broadcastMessage(ConsensusMessage message) throws Exception {
 		System.out.println("Broadcasting message: " + message);
 		Message msg = new Message(null, message);
 		channel.send(msg);
-	}
-
-	public void receiveMessage(ConsensusMessage message) {
-		System.out.println("Received message: " + message);
 	}
 }
