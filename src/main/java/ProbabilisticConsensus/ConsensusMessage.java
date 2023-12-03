@@ -6,12 +6,11 @@ import lombok.Getter;
 
 @Getter
 public class ConsensusMessage implements Serializable {
+
     int view;
     int sequenceNumber;
-
     MessageType type;
     int senderId;
-
 
     // Add other necessary fields based on the message type
     ConsensusMessage(int view, int sequenceNumber, MessageType type, int senderId) {

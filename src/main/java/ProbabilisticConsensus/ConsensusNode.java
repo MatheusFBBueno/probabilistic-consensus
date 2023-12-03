@@ -50,6 +50,7 @@ public class ConsensusNode implements MessageHandler {
 	}
 
 	public void handleReceive(ConsensusMessage consensusMessage) {
+		System.out.println("Node " + this.nodeId + ": Received message from " + consensusMessage.getSenderId());
 		switch (consensusMessage.getType()) {
 		case PRE_PREPARE:
 			this.receivePrePrepare();
@@ -64,7 +65,7 @@ public class ConsensusNode implements MessageHandler {
 	}
 
 	private void receivePrePrepare() {
-		System.out.println("Received PRE_PREPARE");
+		System.out.println("Received PRE_PREPARE ");
 	}
 
 	private void respondPrepare() throws Exception {
