@@ -1,15 +1,14 @@
 package ProbabilisticConsensus;
 
-enum MessageType {
-    PREPREPARE,
-    PREPARE,
-    COMMIT
+import java.io.Serializable;
 
-}
+import lombok.Getter;
 
-class ConsensusMessage {
+@Getter
+public class ConsensusMessage implements Serializable {
     int view;
     int sequenceNumber;
+
     MessageType type;
     int senderId;
 
