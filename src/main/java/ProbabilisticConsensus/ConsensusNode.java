@@ -60,8 +60,10 @@ public class ConsensusNode implements MessageHandler {
 			}
 			break;
 		case PREPARE:
+			this.updatePrepareBuffer(consensusMessage);
 			break;
 		case COMMIT:
+			this.updateCommitBuffer(consensusMessage);
 			break;
 		default:
 			break;
