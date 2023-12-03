@@ -11,7 +11,6 @@ public class ConsensusNode implements MessageHandler {
 	int nodeId;
 	int nodeView;
 	int lastExecutedSequenceNumber;
-	int nodeQuantity;
 	List<ConsensusMessage> log;
 	Map<Integer, ConsensusMessage> prePrepareBuffer;
 	Map<Integer, ConsensusMessage> prepareBuffer;
@@ -31,7 +30,6 @@ public class ConsensusNode implements MessageHandler {
 		this.prepareBuffer = new HashMap<>();
 		this.commitBuffer = new HashMap<>();
 //		this.isMasterNode = false;
-		this.nodeQuantity = 4;
 	}
 
 	public void setNodeView(int nodeView) {
@@ -68,7 +66,7 @@ public class ConsensusNode implements MessageHandler {
 	}
 
 	private int getBizantineTolerance() {
-		return (int) Math.floor((float) (this.nodeQuantity-1)/3);
+		return (int) Math.floor((float) (this.nodeInterface.nodeQuantity()-1)/3);
 	}
 
 	private void startConsensusCall() throws Exception {
@@ -145,4 +143,3 @@ public class ConsensusNode implements MessageHandler {
     }
 
 }
-

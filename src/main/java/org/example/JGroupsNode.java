@@ -41,4 +41,8 @@ public class JGroupsNode extends ReceiverAdapter implements ConsensusInterface {
 	public void messageHandler(MessageHandler handler) {
 		this.messageHandler = handler;
 	}
+
+	public int nodeQuantity() {
+		return channel.getView().getMembers().size();
+	}
 }
