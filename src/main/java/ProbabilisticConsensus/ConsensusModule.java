@@ -12,8 +12,8 @@ class ConsensusNode {
     int lastExecutedSequenceNumber;
     List<ConsensusMessage> log;
     Map<Integer, ConsensusMessage> prePrepareBuffer;
-    Map<Integer, List<ConsensusMessage>> prepareBuffer;
-    Map<Integer, List<ConsensusMessage>> commitBuffer;
+    Map<Integer, ConsensusMessage> prepareBuffer;
+    Map<Integer, ConsensusMessage> commitBuffer;
 
     private final ConsensusInterface nodeInterface;
 
@@ -32,16 +32,28 @@ class ConsensusNode {
 
     }
 
-    private void receive() {
-        while (true) {
-            this.log = this.nodeInterface.receiveAllMessages();
+    public void receiveMessage(ConsensusMessage msg) {
+        switch (msg.type) {
+            case PREPREPARE -> {
+                if (msg.sequenceNumber > this.lastExecutedSequenceNumber){
+                    this.respondPrepare();
+                } else {
+                    System.out.println("Recusado pedido de prePrepare");
+                }
+            }
+            case PREPARE -> {
+                this.updatePrepareBuffer(msg);
+            }
+            case COMMIT -> {
+                this.updateCommitBuffer(msg);
+            }
         }
     }
 
     public int getConsensus() { // Chama todos os procedimentos e retorna valor
         this.isMasterNode = true;
         this.startConsensusCall();
-        int byzantineTolerance =  this.nodeInterface.numberOfNodes();
+//        int byzantineTolerance =  this.nodeInterface.numberOfNodes();
         return 0;}
 
     private void startConsensusCall() {
@@ -72,15 +84,24 @@ class ConsensusNode {
                 this.nodeId);
         this.nodeInterface.broadcastMessage(msg_request);
     }
+
+    private void updateCommitBuffer(ConsensusMessage msg) {
+        this.commitBuffer.put(msg.senderId, msg);
+    }
+
+    private void updatePrepareBuffer(ConsensusMessage msg) {
+        this.prepareBuffer.put(msg.senderId, msg);
+    }
+
 }
 
 
 public class ConsensusModule<T> {
     ConsensusNode node;
-    ConsensusInterface interface;
+//    ConsensusInterface interface;
 
     public void receive(String msgString) {
-       ConsensusMessage<T> msgObject = MessageParser.parseMessageString(msgString);
+       ConsensusMessage msgObject = MessageParser.parseMessageString(msgString);
        node.receiveMessage(msgObject);
     }
 //
