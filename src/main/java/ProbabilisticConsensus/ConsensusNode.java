@@ -102,9 +102,14 @@ public class ConsensusNode implements MessageHandler {
 				}
 			}
 			case COMMIT -> this.updateCommitBuffer(consensusMessage);
+			case REPLY -> this.reply();
 			default -> {
 			}
 		}
+	}
+
+	private void reply() {
+		System.out.println("NODE "+this.nodeId+" respondendo para client");
 	}
 
 	private void prepare() throws Exception {
