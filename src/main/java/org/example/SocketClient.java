@@ -19,17 +19,14 @@ public class SocketClient {
 		final int PORT = 12345;
 
 		try {
-			// Cria um ServerSocket que irá aguardar conexões na porta especificada
 			ServerSocket serverSocket = new ServerSocket(PORT);
 			System.out.println("Servidor aguardando conexões na porta " + PORT);
 			AtomicInteger counter = new AtomicInteger(0);
 
 			while (counter.get() < client.getNumberOfRequests()) {
 				counter.incrementAndGet();
-				// Aguarda uma conexão de um cliente
 				Socket clientSocket = serverSocket.accept();
 
-				// Cria uma thread para lidar com o cliente
 				ClientHandler clientHandler = new ClientHandler(clientSocket, client);
 				Thread thread = new Thread(clientHandler);
 				thread.start();

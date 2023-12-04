@@ -1,6 +1,8 @@
 package ProbabilisticConsensus;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static ProbabilisticConsensus.MessageType.*;
@@ -10,11 +12,12 @@ public class ConsensusNode implements MessageHandler {
 	int nodeView;
 	int lastExecutedSequenceNumber;
 	List<ConsensusMessage> log;
-	Map<Integer, ConsensusMessage> prePrepareBuffer;
-	Map<Integer, ConsensusMessage> prepareBuffer;
-	Map<Integer, ConsensusMessage> commitBuffer;
-	Map<Integer, ConsensusMessage> replyBuffer;
+	ConcurrentHashMap<Integer, ConsensusMessage> prePrepareBuffer;
+	ConcurrentHashMap<Integer, ConsensusMessage> prepareBuffer;
+	ConcurrentHashMap<Integer, ConsensusMessage> commitBuffer;
 
+	AtomicBoolean alreadyPrepared = new AtomicBoolean(false);
+	AtomicBoolean alreadyCommitted = new AtomicBoolean(false);
 	private final ConsensusInterface nodeInterface;
 
 	private final NodeSenderInterface nodeSenderInterface;
@@ -28,11 +31,9 @@ public class ConsensusNode implements MessageHandler {
 		this.nodeView = 0;   // Pode ter nome melhor, mas corresponde a o valor que o nodo enxerga como correto
 		this.lastExecutedSequenceNumber = 0;
 		this.log = new ArrayList<>();
-		this.prePrepareBuffer = new HashMap<>();
-		this.prepareBuffer = new HashMap<>();
-		this.commitBuffer = new HashMap<>();
-		this.replyBuffer = new HashMap<>();
-//		this.isMasterNode = false;
+		this.prePrepareBuffer = new ConcurrentHashMap<>();
+		this.prepareBuffer = new ConcurrentHashMap<>();
+		this.commitBuffer = new ConcurrentHashMap<>();
 	}
 
 	public void setNodeView(int nodeView) {
@@ -81,34 +82,28 @@ public class ConsensusNode implements MessageHandler {
 
 		else {
 			this.lastExecutedSequenceNumber = consensusMessage.sequenceNumber;
-//			System.out.println("Pedido ACEITO");
 		}
 		switch (consensusMessage.type) {
 			case PRE_PREPARE -> {
 				if (consensusMessage.senderId != this.nodeId)  {
 					this.prepare();
 				}
-
 			}
 			case PREPARE -> {
 				this.updatePrepareBuffer(consensusMessage);
-				if (this.prepareBuffer.size() > 2*this.getBizantineTolerance()) {
+				if (this.prepareBuffer.size() > 2 * this.getBizantineTolerance() && !this.alreadyPrepared.get()) {
+					this.alreadyPrepared.set(true);
 					this.commit();
 				}
 			}
 			case COMMIT -> {
 				this.updateCommitBuffer(consensusMessage);
 
-				if (this.commitBuffer.size() > 2*this.getBizantineTolerance()) {
+				if (this.commitBuffer.size() > 2 * this.getBizantineTolerance() && !this.alreadyCommitted.get()) {
 					this.nodeView = this.getAgreedValue();
+					this.alreadyCommitted.set(true);
 					System.out.println("NODE "+this.nodeId+" entrando em fase de REPLY");
-					this.sendReply();
-				}
-			}
-			case REPLY -> {
-				this.updateReplyBuffer(consensusMessage);
-				if (this.replyBuffer.size() > 2*this.getBizantineTolerance()) {
-					this.reply();
+					this.sendReply(this.nodeView, this.log);
 				}
 			}
 			default -> {
@@ -116,24 +111,9 @@ public class ConsensusNode implements MessageHandler {
 		}
 	}
 
-	private void reply() {
-//		this.sendReply();
-		if (this.replyBuffer.size() > 2*this.getBizantineTolerance()) {
-			this.respondClient(this.nodeView, this.log);
-		}
-
-	}
-
 	private void prepare() throws Exception {
 		System.out.println("NODE "+this.nodeId+" entrando em fase PREPARE");
 		this.sendPrepare();
-
-	}
-
-	private void respondClient(int value, List<ConsensusMessage> log) {
-//		this.lastExecutedSequenceNumber++;
-		System.out.println("NODE "+this.nodeId+" respondendo para client");
-		this.nodeSenderInterface.send(value);
 	}
 
 	private void commit() throws Exception {
@@ -162,36 +142,16 @@ public class ConsensusNode implements MessageHandler {
         this.nodeInterface.broadcastMessage(msg_request);
     }
 
-	private void sendReply() throws Exception {
-		ConsensusMessage msg_request = new ConsensusMessage(this.nodeView,
-				this.lastExecutedSequenceNumber,
-				REPLY,
-				this.nodeId);
-		this.nodeInterface.broadcastMessage(msg_request);
-	}
-
-	private void updateReplyBuffer(ConsensusMessage msg) {
-		this.replyBuffer.put(msg.senderId, msg);
+	private void sendReply(Integer value, List<ConsensusMessage> log){
+		this.nodeSenderInterface.send(value);
 	}
 
 	private void updateCommitBuffer(ConsensusMessage msg) {
-        this.commitBuffer.put(msg.senderId, msg);
+        this.commitBuffer.putIfAbsent(msg.senderId, msg);
     }
 
     private void updatePrepareBuffer(ConsensusMessage msg) {
-        this.prepareBuffer.put(msg.senderId, msg);
+        this.prepareBuffer.putIfAbsent(msg.senderId, msg);
     }
-
-	public void prettyPrintLog() {
-		System.out.println("Node " + nodeId + " Log:");
-		for (ConsensusMessage message : log) {
-			System.out.println("View: " + message.view +
-					", SequenceNumber: " + message.sequenceNumber +
-					", Type: " + message.type +
-					", SenderId: " + message.senderId);
-
-		}
-		System.out.println();
-	}
 
 }

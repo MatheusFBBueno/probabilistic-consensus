@@ -30,11 +30,7 @@ public class Client {
 				.orElse(-1);
 	}
 
-	public void getConsensus() throws Exception {
-		while (this.resultsBuffer.stream().filter(Objects::nonNull).count() < 2L*faultTolerance+1) {
-			System.out.println("Cliente esperando resultado do consenso");
-			Thread.sleep(1000);
-		}
+	public void getConsensus() {
 		int result = getMostCommonResult();
 		if (result != -1) {
 			System.out.println("Consenso atingido, valor: " + result);
