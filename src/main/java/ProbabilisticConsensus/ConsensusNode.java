@@ -31,6 +31,7 @@ public class ConsensusNode implements MessageHandler {
 		this.prePrepareBuffer = new HashMap<>();
 		this.prepareBuffer = new HashMap<>();
 		this.commitBuffer = new HashMap<>();
+		this.replyBuffer = new HashMap<>();
 //		this.isMasterNode = false;
 	}
 
@@ -91,22 +92,23 @@ public class ConsensusNode implements MessageHandler {
 			}
 			case PREPARE -> {
 				this.updatePrepareBuffer(consensusMessage);
-				this.commit();
+				if (this.prepareBuffer.size() > 2*this.getBizantineTolerance()) {
+					this.commit();
+				}
 			}
 			case COMMIT -> {
 				this.updateCommitBuffer(consensusMessage);
 
 				if (this.commitBuffer.size() > 2*this.getBizantineTolerance()) {
 					this.nodeView = this.getAgreedValue();
-					this.sendReply();
 					System.out.println("NODE "+this.nodeId+" entrando em fase de REPLY");
+					this.sendReply();
 				}
 			}
 			case REPLY -> {
 				this.updateReplyBuffer(consensusMessage);
 				if (this.replyBuffer.size() > 2*this.getBizantineTolerance()) {
 					this.reply();
-
 				}
 			}
 			default -> {
@@ -115,9 +117,8 @@ public class ConsensusNode implements MessageHandler {
 	}
 
 	private void reply() throws Exception {
-		this.sendReply();
+//		this.sendReply();
 		if (this.replyBuffer.size() > 2*this.getBizantineTolerance()) {
-			this.lastExecutedSequenceNumber++;
 			this.respondClient(this.nodeView, this.log);
 		}
 
@@ -130,12 +131,16 @@ public class ConsensusNode implements MessageHandler {
 	}
 
 	private void respondClient(int value, List<ConsensusMessage> log) {
+//		this.lastExecutedSequenceNumber++;
 		System.out.println("NODE "+this.nodeId+" respondendo para client");
 	}
 
 	private void commit() throws Exception {
-		System.out.println("NODE "+this.nodeId+" entrando em fase COMMIT");
+		if (this.commitBuffer.containsKey(this.nodeId)) {
+			return;
+		}
 		if (this.prepareBuffer.size() > 2*this.getBizantineTolerance()) {
+			System.out.println("NODE "+this.nodeId+" entrando em fase COMMIT");
 			this.sendCommit();
 		}
 	}
