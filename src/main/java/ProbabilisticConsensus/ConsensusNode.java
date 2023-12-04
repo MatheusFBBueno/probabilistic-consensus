@@ -109,15 +109,17 @@ public class ConsensusNode implements MessageHandler {
 
 	private void prepare() throws Exception {
 		System.out.println("NODE "+this.nodeId+" entrando em fase PREPARE");
-		if (this.prepareBuffer.size() > 2*this.getBizantineTolerance()) {
-			this.sendPrepare();
-		}
+		this.sendPrepare();
+
 	}
 
 	private void commit() throws Exception {
 		System.out.println("NODE "+this.nodeId+" entrando em fase COMMIT");
-		this.sendCommit();
-		prettyPrintLog();
+		if (this.prepareBuffer.size() > 2*this.getBizantineTolerance()) {
+			this.sendCommit();
+			prettyPrintLog();
+		}
+
 	}
 
 	private void sendPrepare() throws Exception {
