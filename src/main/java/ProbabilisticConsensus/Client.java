@@ -7,12 +7,16 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Client {
-	public List<Integer> resultsBuffer;
+	public final List<Integer> resultsBuffer;
 	int faultTolerance;
 
 	public Client(int faultTolerance){
 		this.resultsBuffer = new ArrayList<>();
 		this.faultTolerance = faultTolerance;
+	}
+
+	public int getNumberOfRequests() {
+		return 2 * faultTolerance + 1;
 	}
 
 	public int getMostCommonResult() {

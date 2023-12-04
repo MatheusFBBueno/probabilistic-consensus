@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ProbabilisticConsensus.Client;
 
@@ -21,19 +22,24 @@ public class SocketClient {
 			// Cria um ServerSocket que irá aguardar conexões na porta especificada
 			ServerSocket serverSocket = new ServerSocket(PORT);
 			System.out.println("Servidor aguardando conexões na porta " + PORT);
+			AtomicInteger counter = new AtomicInteger(0);
 
-			while (true) {
+			while (counter.get() < client.getNumberOfRequests()) {
+				counter.incrementAndGet();
 				// Aguarda uma conexão de um cliente
 				Socket clientSocket = serverSocket.accept();
-				System.out.println("Cliente conectado: " + clientSocket.getInetAddress().getHostAddress());
 
 				// Cria uma thread para lidar com o cliente
 				ClientHandler clientHandler = new ClientHandler(clientSocket, client);
 				Thread thread = new Thread(clientHandler);
 				thread.start();
 			}
+
+			client.getConsensus();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -51,12 +57,10 @@ public class SocketClient {
 			try {
 				// Cria streams de entrada e saída para o cliente
 				DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
-
 				while (true) {
 					// Aguarda e lê um número inteiro do cliente
 					int number = dis.readInt();
 					client.addResult(number);
-					System.out.println("Número recebido do cliente " + clientSocket.getInetAddress().getHostAddress() + ": " + number);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

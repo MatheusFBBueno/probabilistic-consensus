@@ -116,7 +116,7 @@ public class ConsensusNode implements MessageHandler {
 		}
 	}
 
-	private void reply() throws Exception {
+	private void reply() {
 //		this.sendReply();
 		if (this.replyBuffer.size() > 2*this.getBizantineTolerance()) {
 			this.respondClient(this.nodeView, this.log);
@@ -133,6 +133,7 @@ public class ConsensusNode implements MessageHandler {
 	private void respondClient(int value, List<ConsensusMessage> log) {
 //		this.lastExecutedSequenceNumber++;
 		System.out.println("NODE "+this.nodeId+" respondendo para client");
+		this.nodeSenderInterface.send(value);
 	}
 
 	private void commit() throws Exception {
