@@ -18,10 +18,13 @@ public class ConsensusNode implements MessageHandler {
 
 	private final ConsensusInterface nodeInterface;
 
+	private final NodeSenderInterface nodeSenderInterface;
 
-	public ConsensusNode(int nodeId, ConsensusInterface nodeInterface) {
+
+	public ConsensusNode(int nodeId, ConsensusInterface nodeInterface, NodeSenderInterface nodeSenderInterface) {
 		this.nodeId = nodeId;
 		this.nodeInterface = nodeInterface;
+		this.nodeSenderInterface = nodeSenderInterface;
 		this.nodeInterface.messageHandler(this);
 		this.nodeView = 0;   // Pode ter nome melhor, mas corresponde a o valor que o nodo enxerga como correto
 		this.lastExecutedSequenceNumber = 0;
@@ -62,7 +65,6 @@ public class ConsensusNode implements MessageHandler {
 		} else {
 			throw new IllegalStateException("Unable to find the most common view");
 		}
-
 	}
 
 	private int getBizantineTolerance() {

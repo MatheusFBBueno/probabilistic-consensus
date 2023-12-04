@@ -10,7 +10,8 @@ public class MainMasterInit {
     }
     public static void initMasterNode(int nodeId) throws Exception{
         JGroupsNode jGroupsNode = new JGroupsNode();
-        ConsensusNode consensusNode = new ConsensusNode(nodeId, jGroupsNode);
+        SocketNode socketNode = new SocketNode();
+        ConsensusNode consensusNode = new ConsensusNode(nodeId, jGroupsNode, socketNode);
         jGroupsNode.start();
         System.out.println("CONSENSO ATINGIDO: "+consensusNode.getConsensus());
 //		consensusNode.getConsensus();

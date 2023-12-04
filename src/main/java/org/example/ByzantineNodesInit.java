@@ -25,7 +25,8 @@ public class ByzantineNodesInit {
     public static void initConsensus(int nodeId) throws Exception {
         System.out.println("Iniciado nodo bizantino "+nodeId);
         JGroupsNode jGroupsNode = new JGroupsNode();
-        ConsensusNode consensusNode = new ConsensusNode(nodeId, jGroupsNode);
+        SocketNode socketNode = new SocketNode();
+        ConsensusNode consensusNode = new ConsensusNode(nodeId, jGroupsNode, socketNode);
         consensusNode.setNodeView(20000);
         jGroupsNode.start();
     }
