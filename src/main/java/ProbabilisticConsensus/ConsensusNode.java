@@ -79,6 +79,7 @@ public class ConsensusNode implements MessageHandler {
 	}
 
 	public void handleReceive(ConsensusMessage consensusMessage) throws Exception {
+		this.log.add(consensusMessage);
 		if (consensusMessage.sequenceNumber < this.lastExecutedSequenceNumber) {
 			System.out.println("Pedido recusado por sequenceNumber antigo");
 		}
@@ -116,6 +117,7 @@ public class ConsensusNode implements MessageHandler {
 	private void commit() throws Exception {
 		System.out.println("NODE "+this.nodeId+" entrando em fase COMMIT");
 		this.sendCommit();
+		prettyPrintLog();
 	}
 
 	private void sendPrepare() throws Exception {
@@ -141,5 +143,17 @@ public class ConsensusNode implements MessageHandler {
     private void updatePrepareBuffer(ConsensusMessage msg) {
         this.prepareBuffer.put(msg.senderId, msg);
     }
+
+	public void prettyPrintLog() {
+		System.out.println("Node " + nodeId + " Log:");
+		for (ConsensusMessage message : log) {
+			System.out.println("View: " + message.view +
+					", SequenceNumber: " + message.sequenceNumber +
+					", Type: " + message.type +
+					", SenderId: " + message.senderId);
+
+		}
+		System.out.println();
+	}
 
 }
