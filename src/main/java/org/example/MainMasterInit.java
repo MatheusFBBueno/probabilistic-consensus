@@ -12,8 +12,8 @@ public class MainMasterInit {
         JGroupsNode jGroupsNode = new JGroupsNode();
         ConsensusNode consensusNode = new ConsensusNode(nodeId, jGroupsNode);
         jGroupsNode.start();
-        System.out.println("CONSENSO ATINGIDO: "+consensusNode.getConsensus());
-//		consensusNode.getConsensus();
+//        System.out.println("CONSENSO ATINGIDO: "+consensusNode.getConsensus());
+		consensusNode.getConsensus();
     }
 
 }

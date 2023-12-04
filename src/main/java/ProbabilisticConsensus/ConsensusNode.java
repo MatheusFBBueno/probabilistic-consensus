@@ -1,11 +1,9 @@
 package ProbabilisticConsensus;
 
-import static ProbabilisticConsensus.MessageType.COMMIT;
-import static ProbabilisticConsensus.MessageType.PREPARE;
-import static ProbabilisticConsensus.MessageType.PRE_PREPARE;
-
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static ProbabilisticConsensus.MessageType.*;
 
 public class ConsensusNode implements MessageHandler {
 	int nodeId;
@@ -15,6 +13,7 @@ public class ConsensusNode implements MessageHandler {
 	Map<Integer, ConsensusMessage> prePrepareBuffer;
 	Map<Integer, ConsensusMessage> prepareBuffer;
 	Map<Integer, ConsensusMessage> commitBuffer;
+	Map<Integer, ConsensusMessage> replyBuffer;
 
 	private final ConsensusInterface nodeInterface;
 
@@ -36,16 +35,9 @@ public class ConsensusNode implements MessageHandler {
 		this.nodeView = nodeView;
 	}
 
-	public int getConsensus() throws Exception { // Chama todos os procedimentos e retorna valor
+	public void getConsensus() throws Exception { // Chama todos os procedimentos e retorna valor
 		this.lastExecutedSequenceNumber++;
 		this.startConsensusCall();
-		int f = this.getBizantineTolerance();
-		while (this.commitBuffer.size() < 2*f+1) {
-			System.out.println("Esperando por nodos");
-			Thread.sleep(10);
-		}
-
-		return this.getAgreedValue();
 	}
 
 	private int getAgreedValue() {
@@ -95,21 +87,38 @@ public class ConsensusNode implements MessageHandler {
 				}
 
 			}
-			case PREPARE -> { // Deve esperar 2f recebidos de prepare (nao contando a si mesmo?)
-				if (consensusMessage.senderId != this.nodeId)  {
-					this.updatePrepareBuffer(consensusMessage);
-					this.commit();
+			case PREPARE -> {
+				this.updatePrepareBuffer(consensusMessage);
+				this.commit();
+			}
+			case COMMIT -> {
+				this.updateCommitBuffer(consensusMessage);
+
+				if (this.commitBuffer.size() > 2*this.getBizantineTolerance()) {
+					this.nodeView = this.getAgreedValue();
+					this.sendReply();
+					System.out.println("NODE "+this.nodeId+" entrando em fase de REPLY");
 				}
 			}
-			case COMMIT -> this.updateCommitBuffer(consensusMessage);
-			case REPLY -> this.reply();
+			case REPLY -> {
+				this.updateReplyBuffer(consensusMessage);
+				if (this.replyBuffer.size() > 2*this.getBizantineTolerance()) {
+					this.reply();
+
+				}
+			}
 			default -> {
 			}
 		}
 	}
 
-	private void reply() {
-		System.out.println("NODE "+this.nodeId+" respondendo para client");
+	private void reply() throws Exception {
+		this.sendReply();
+		if (this.replyBuffer.size() > 2*this.getBizantineTolerance()) {
+			this.lastExecutedSequenceNumber++;
+			this.respondClient(this.nodeView, this.log);
+		}
+
 	}
 
 	private void prepare() throws Exception {
@@ -118,13 +127,15 @@ public class ConsensusNode implements MessageHandler {
 
 	}
 
+	private void respondClient(int value, List<ConsensusMessage> log) {
+		System.out.println("NODE "+this.nodeId+" respondendo para client");
+	}
+
 	private void commit() throws Exception {
 		System.out.println("NODE "+this.nodeId+" entrando em fase COMMIT");
 		if (this.prepareBuffer.size() > 2*this.getBizantineTolerance()) {
 			this.sendCommit();
-			prettyPrintLog();
 		}
-
 	}
 
 	private void sendPrepare() throws Exception {
@@ -143,7 +154,19 @@ public class ConsensusNode implements MessageHandler {
         this.nodeInterface.broadcastMessage(msg_request);
     }
 
-    private void updateCommitBuffer(ConsensusMessage msg) {
+	private void sendReply() throws Exception {
+		ConsensusMessage msg_request = new ConsensusMessage(this.nodeView,
+				this.lastExecutedSequenceNumber,
+				REPLY,
+				this.nodeId);
+		this.nodeInterface.broadcastMessage(msg_request);
+	}
+
+	private void updateReplyBuffer(ConsensusMessage msg) {
+		this.replyBuffer.put(msg.senderId, msg);
+	}
+
+	private void updateCommitBuffer(ConsensusMessage msg) {
         this.commitBuffer.put(msg.senderId, msg);
     }
 
