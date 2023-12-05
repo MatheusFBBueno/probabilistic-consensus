@@ -5,7 +5,7 @@ import ProbabilisticConsensus.ConsensusNode;
 public class ByzantineReplicaNodesInit {
 
     public static void main(String[] args) {
-        int numberOfThreads = 2;
+        int numberOfThreads = 3;
 
 
         for (int i = 1; i <= numberOfThreads; i++) {

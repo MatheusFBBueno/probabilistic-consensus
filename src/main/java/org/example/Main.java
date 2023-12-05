@@ -7,7 +7,8 @@ public class Main {
 	public static void main(String[] args) throws Exception {
 		startClient();
 		startReplica();
-//		startByzantine();
+		Thread.sleep(3000);
+		startByzantine();
 		Thread.sleep(2000);
 		initMasterNode(0);
 	}
@@ -64,7 +65,7 @@ public class Main {
 	}
 
 	public static void startByzantine() {
-		int numberOfThreads = 2;
+		int numberOfThreads = 8;
 
 
 		for (int i = 1; i <= numberOfThreads; i++) {
