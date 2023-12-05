@@ -9,7 +9,7 @@ import static ProbabilisticConsensus.MessageType.*;
 
 public class ConsensusNode implements MessageHandler {
 	int nodeId;
-	int nodeView;
+	String nodeValue;
 	int lastExecutedSequenceNumber;
 	List<ConsensusMessage> log;
 	ConcurrentHashMap<Integer, ConsensusMessage> prePrepareBuffer;
@@ -28,7 +28,7 @@ public class ConsensusNode implements MessageHandler {
 		this.nodeInterface = nodeInterface;
 		this.nodeSenderInterface = nodeSenderInterface;
 		this.nodeInterface.messageHandler(this);
-		this.nodeView = 0;   // Pode ter nome melhor, mas corresponde a o valor que o nodo enxerga como correto
+		this.nodeValue = "0";   // Pode ter nome melhor, mas corresponde a o valor que o nodo enxerga como correto
 		this.lastExecutedSequenceNumber = 0;
 		this.log = new ArrayList<>();
 		this.prePrepareBuffer = new ConcurrentHashMap<>();
@@ -36,8 +36,8 @@ public class ConsensusNode implements MessageHandler {
 		this.commitBuffer = new ConcurrentHashMap<>();
 	}
 
-	public void setNodeView(int nodeView) {
-		this.nodeView = nodeView;
+	public void setNodeValue(String nodeValue) {
+		this.nodeValue = nodeValue;
 	}
 
 	public void getConsensus() throws Exception { // Chama todos os procedimentos e retorna valor
@@ -45,13 +45,13 @@ public class ConsensusNode implements MessageHandler {
 		this.startConsensusCall();
 	}
 
-	private int getAgreedValue() {
+	private String getAgreedValue() {
 		// Count occurrences of each view
-		Map<Integer, Long> viewCounts = this.commitBuffer.values().stream()
-				.collect(Collectors.groupingBy(ConsensusMessage::getView, Collectors.counting()));
+		Map<String, Long> viewCounts = this.commitBuffer.values().stream()
+				.collect(Collectors.groupingBy(ConsensusMessage::getValue, Collectors.counting()));
 
 		// Find the view with the maximum occurrence
-		Optional<Map.Entry<Integer, Long>> maxEntry = viewCounts.entrySet().stream()
+		Optional<Map.Entry<String, Long>> maxEntry = viewCounts.entrySet().stream()
 				.max(Map.Entry.comparingByValue());
 
 		if (maxEntry.isPresent()) {
@@ -67,7 +67,7 @@ public class ConsensusNode implements MessageHandler {
 
 	private void startConsensusCall() throws Exception {
 //		this.lastExecutedSequenceNumber++;
-		ConsensusMessage msg_request = new ConsensusMessage(this.nodeView,
+		ConsensusMessage msg_request = new ConsensusMessage(this.nodeValue,
 				this.lastExecutedSequenceNumber,
 				PRE_PREPARE,
 				this.nodeId);
@@ -100,10 +100,10 @@ public class ConsensusNode implements MessageHandler {
 				this.updateCommitBuffer(consensusMessage);
 
 				if (this.commitBuffer.size() > 2 * this.getBizantineTolerance() && !this.alreadyCommitted.get()) {
-					this.nodeView = this.getAgreedValue();
+					this.nodeValue = this.getAgreedValue();
 					this.alreadyCommitted.set(true);
 					System.out.println("NODE "+this.nodeId+" entrando em fase de REPLY");
-					this.sendReply(this.nodeView, this.log);
+					this.sendReply(this.nodeValue);
 				}
 			}
 			default -> {
@@ -127,7 +127,7 @@ public class ConsensusNode implements MessageHandler {
 	}
 
 	private void sendPrepare() throws Exception {
-		ConsensusMessage msg_request = new ConsensusMessage(this.nodeView,
+		ConsensusMessage msg_request = new ConsensusMessage(this.nodeValue,
 				this.lastExecutedSequenceNumber,
 				PREPARE,
 				this.nodeId);
@@ -135,14 +135,14 @@ public class ConsensusNode implements MessageHandler {
 	}
 
     private void sendCommit() throws Exception {
-        ConsensusMessage msg_request = new ConsensusMessage(this.nodeView,
+        ConsensusMessage msg_request = new ConsensusMessage(this.nodeValue,
                 this.lastExecutedSequenceNumber,
                 COMMIT,
                 this.nodeId);
         this.nodeInterface.broadcastMessage(msg_request);
     }
 
-	private void sendReply(Integer value, List<ConsensusMessage> log){
+	private void sendReply(String value){
 		this.nodeSenderInterface.send(value);
 	}
 

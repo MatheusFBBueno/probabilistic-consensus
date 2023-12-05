@@ -1,5 +1,5 @@
 package ProbabilisticConsensus;
 
 public interface NodeSenderInterface {
-	public void send(int message);
+	public void send(String message);
 }

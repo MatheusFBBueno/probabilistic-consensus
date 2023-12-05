@@ -27,7 +27,7 @@ public class NodesInit {
         JGroupsNode jGroupsNode = new JGroupsNode();
         SocketNode socketNode = new SocketNode();
         ConsensusNode consensusNode = new ConsensusNode(nodeId, jGroupsNode, socketNode);
-        consensusNode.setNodeView(2);
+        consensusNode.setNodeValue("2");
         jGroupsNode.start();
     }
 

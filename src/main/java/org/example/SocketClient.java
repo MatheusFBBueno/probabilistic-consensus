@@ -1,6 +1,7 @@
 package org.example;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -56,9 +57,11 @@ public class SocketClient {
 				DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
 				while (true) {
 					// Aguarda e lê um número inteiro do cliente
-					int number = dis.readInt();
+					String number = dis.readUTF();
 					client.addResult(number);
 				}
+			} catch (EOFException e) {
+				return;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

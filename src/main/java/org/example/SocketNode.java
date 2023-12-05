@@ -8,7 +8,7 @@ import ProbabilisticConsensus.NodeSenderInterface;
 
 public class SocketNode implements NodeSenderInterface {
 
-	public void send(int message) {
+	public void send(String message) {
 		final String SERVER_IP = "127.0.0.1"; // Altere para o IP do servidor
 		final int SERVER_PORT = 12345;
 
@@ -17,7 +17,7 @@ public class SocketNode implements NodeSenderInterface {
 
 			DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
 
-			dos.writeInt(message);
+			dos.writeUTF(message);
 
 			socket.close();
 		} catch (ConnectException e) {

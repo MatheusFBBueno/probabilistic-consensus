@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Client {
-	public final List<Integer> resultsBuffer;
+	public final List<String> resultsBuffer;
 	int faultTolerance;
 
 	public Client(int faultTolerance){
@@ -19,20 +19,20 @@ public class Client {
 		return 2 * faultTolerance + 1;
 	}
 
-	public int getMostCommonResult() {
+	public String getMostCommonResult() {
 		return this.resultsBuffer.stream()
 				.filter(Objects::nonNull)
-				.collect(Collectors.groupingBy(Integer::intValue, Collectors.counting()))
+				.collect(Collectors.groupingBy(String::toString, Collectors.counting()))
 				.entrySet()
 				.stream()
 				.max(Map.Entry.comparingByValue())
 				.map(Map.Entry::getKey)
-				.orElse(-1);
+				.orElse("-1");
 	}
 
 	public void getConsensus() {
-		int result = getMostCommonResult();
-		if (result != -1) {
+		String result = getMostCommonResult();
+		if (!result.equals("-1")) {
 			System.out.println("Consenso atingido, valor: " + result);
 		} else {
 			System.out.println("Consenso não foi atingido");
@@ -40,7 +40,7 @@ public class Client {
 		}
 	}
 
-	public void addResult(Integer result) {
+	public void addResult(String result) {
 		this.resultsBuffer.add(result);
 	}
 

@@ -27,7 +27,7 @@ public class ByzantineNodesInit {
         JGroupsNode jGroupsNode = new JGroupsNode();
         SocketNode socketNode = new SocketNode();
         ConsensusNode consensusNode = new ConsensusNode(nodeId, jGroupsNode, socketNode);
-        consensusNode.setNodeView(20000);
+        consensusNode.setNodeValue("20000");
         jGroupsNode.start();
     }
 }
