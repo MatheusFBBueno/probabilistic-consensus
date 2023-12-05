@@ -22,10 +22,14 @@ public class JGroupsNode extends ReceiverAdapter implements ConsensusInterface {
 //		channel.close();
 	}
 
-	public void receive(Message msg) {
+	public synchronized void receive(Message msg) {
 		ConsensusMessage consensusMessage = msg.getObject();
 		if (messageHandler != null) {
-			messageHandler.handleReceive(consensusMessage);
+			try {
+				messageHandler.handleReceive(consensusMessage);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 
@@ -36,5 +40,9 @@ public class JGroupsNode extends ReceiverAdapter implements ConsensusInterface {
 
 	public void messageHandler(MessageHandler handler) {
 		this.messageHandler = handler;
+	}
+
+	public int nodeQuantity() {
+		return channel.getView().getMembers().size();
 	}
 }
