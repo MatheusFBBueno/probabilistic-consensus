@@ -2,7 +2,7 @@ package org.example;
 
 import ProbabilisticConsensus.ConsensusNode;
 
-public class ByzantineNodesInit {
+public class ByzantineReplicaNodesInit {
 
     public static void main(String[] args) {
         int numberOfThreads = 2;

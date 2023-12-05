@@ -2,7 +2,7 @@ package org.example;
 
 import ProbabilisticConsensus.ConsensusNode;
 
-public class NodesInit {
+public class ReplicaNodesInit {
 
     public static void main(String[] args) {
         int numberOfThreads = 4;

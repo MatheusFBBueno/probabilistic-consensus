@@ -2,7 +2,7 @@ package org.example;
 
 import ProbabilisticConsensus.Client;
 
-public class Main {
+public class ClientInit {
 	public static void main(String[] args) throws Exception {
 
 		Thread thread = new Thread(() -> {

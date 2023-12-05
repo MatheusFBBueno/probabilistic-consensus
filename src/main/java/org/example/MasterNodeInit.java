@@ -2,7 +2,7 @@ package org.example;
 
 import ProbabilisticConsensus.ConsensusNode;
 
-public class MainMasterInit {
+public class MasterNodeInit {
 
     public static void main(String[] args) throws Exception {
 
