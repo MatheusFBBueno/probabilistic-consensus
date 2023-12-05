@@ -64,7 +64,7 @@ public class Main {
 	}
 
 	public static void startByzantine() {
-		int numberOfThreads = 2;
+		int numberOfThreads = 3;
 
 
 		for (int i = 1; i <= numberOfThreads; i++) {
