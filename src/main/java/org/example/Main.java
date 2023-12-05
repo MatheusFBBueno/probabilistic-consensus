@@ -8,10 +8,11 @@ public class Main {
 		startClient();
 		startReplica();
 //		startByzantine();
+		Thread.sleep(2000);
 		initMasterNode(0);
 	}
 
-	public static void startClient() throws Exception {
+	public static void startClient() {
 
 		Thread thread = new Thread(() -> {
 			try {
